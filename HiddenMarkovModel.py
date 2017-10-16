@@ -12,7 +12,7 @@ class HiddenMarkov():
 		#The probability of hidden state i having visible state j
 		self.state_obs_llh_matrix = np.zeros((self.n_hidden + 1, self.n_visible))
 		self.learn = False
-	#return both forward matrix and end state, probability
+	#return both forward matrix and end state probability, the probability of a observation sequence to be observed.
 	def forward(self, obs_list):
 		#initializa from starting state, which is a non-emitting state
 		forward_maxtrix = np.zeros((self.n_hidden + 1, len(obs_list)+1))
@@ -30,8 +30,8 @@ class HiddenMarkov():
 		for j in range(1, self.n_hidden+1):
 			end_state_prob += forward_maxtrix[j, len(obs_list)]*self.transition_prob_matrix[j, self.n_hidden+1]
 		return (forward_maxtrix, end_state_prob) 
-	#this Viterbi algorithm decodes a visible list of states to corresponding hidden states
-	#that maximizes the probability.
+	# thi calculates the probability of a sequence of observation to be observe, which starts from the final observation
+	# and trace back to the first observations. The probability must be the same with the one calculated from forward method
 	def backward(self, obs_list):
 		n_obs = len(obs_list)
 		backward_matrix = np.zeros((self.n_hidden+1, n_obs+1))
@@ -48,19 +48,22 @@ class HiddenMarkov():
 			begin_state_prob += self.transition_prob_matrix[0, i]*backward_matrix[i, 1]\
 				*self.state_obs_llh_matrix[i, obs_list[0]]
 		return backward_matrix, begin_state_prob
+	#this Viterbi algorithm decodes a visible list of states to corresponding hidden states
+	#that maximizes the probability.
 	def Viterbi_Path(self, obs_list):
 		viterbi = np.zeros((self.n_hidden+2, len(obs_list)+1))
 		path = [0]
 		#initializa from stating state
 		max_prob = 0
 		max_pos = 0
+		#find the initial step from beginning hidden state
 		for j in range(1, self.n_hidden+1):
 			viterbi[j, 1] = self.transition_prob_matrix[0, j]*self.state_obs_llh_matrix[j, obs_list[0]]
 			if viterbi[j, 1]> max_prob:
 				max_prob = viterbi[j, 1]
 				max_pos = j
 		path.append(max_pos)
-		#finding the path up
+		#finding the path of hidden states that corresponds to the observation sequence
 		for t in range(2, len(obs_list)+1):
 			max_prob = 0
 			max_pos = 0
@@ -72,6 +75,7 @@ class HiddenMarkov():
 					max_pos = j
 			path.append(max_pos)
 		return path
+	#this helper method translates a observation data to a vector.
 	def vectorize(self, obs_list):
 		if not self.learn:
 			self.learn =True
@@ -81,23 +85,20 @@ class HiddenMarkov():
 
 		result = [int((obs_list[i]- self.min_value-np.exp(-30))/self.bin_width) for i in range(len(obs_list))]
 		return result
-
+	#this helper method translate the vector of visible sequence to array of observations.
 	def reverse_trasform(self, vector):
 		return [self.min_value + self.bin_width*(i+0.5) for i in vector]
+
 	#give a list, predict what will come out next
 	def predict(self, obs_list_input):
 		obs_list = self.vectorize(obs_list_input)
-
-
 		temp = []
 		for j in range(self.n_visible):
 			temp1 = obs_list[:]
 			temp1.append(j)
-			#print(temp1)
 			dump, probability = self.forward(temp1)
 			temp.append(probability)
-			#print(probability)
-		
+
 		return np.argmax(np.array(temp))
 
 
@@ -123,12 +124,13 @@ class HiddenMarkov():
 		#print(self.transition_prob_matrix)
 
 		#Iterations:
+
+		#arr list keeps track of some components of transition probability matrix to see if they are converging or not
 		arr = []
 		for i_iter in range(n_iter):
 			print("iteration: ", i_iter)
 			forward_maxtrix, end_state_probability = self.forward(obs_list)
 			backward_matrix, begin_state_prob = self.backward(obs_list)
-			#print(end_state_probability)
 			
 			zeta = np.zeros((len(obs_list), self.n_hidden+1, self.n_hidden+1))
 			for t in range(1, len(obs_list)):
@@ -152,6 +154,7 @@ class HiddenMarkov():
 			
 			arr.append([self.transition_prob_matrix[1,1], self.transition_prob_matrix[1, int(self.n_hidden/5)],
 				self.transition_prob_matrix[2, int(2*self.n_hidden/5)], self.transition_prob_matrix[2, int(4*self.n_hidden/5)]])
+		#plot the evolution of some components of transition probability matrix
 		arr = np.array(arr)
 		plt.figure()
 		plt.title("Convergence of some parameters")
@@ -166,23 +169,25 @@ class HiddenMarkov():
 if __name__=='__main__':
 	n_hidden = 12
 	n_visible = 60
+	#initialize a Hidden Markov model
 	hm = HiddenMarkov(n_hidden, n_visible)
+
+	#data are stored in 'forex-eod.csv'
 	obs_list = np.genfromtxt('forex-eod.csv', delimiter=',')[:,2][:150]
-	"""plt.figure()
-	plt.plot(obs_list)
-	plt.show()
-"""
-	#obs_list = hm.vectorize(obs_list)
+	
+	#train the model to the the transition probability matrix and state-observation probability matrix
 	hm.fit(obs_list)
-	#print(hm.transition_prob_matrix)
+
+	#now we try to reproduce what the model has learnt.
 	given = []
 	pred = []
 	for i in range(len(obs_list)-25):
 		given.append(obs_list[i+9])
 		pred.append(hm.predict(obs_list[i: i+10]))
 		print(i)
+	
 	pred = hm.reverse_trasform(pred)
-	#print(hm.state_obs_llh_matrix[1])
+
 	plt.figure()
 	plt.title("HHM with "+ str(n_hidden) +" hidden states \n and " + str(n_visible)+ " visible states")
 	plt.plot(given, label = 'data')
