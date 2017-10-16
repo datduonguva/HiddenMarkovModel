@@ -12,7 +12,7 @@ class HiddenMarkov():
 		#The probability of hidden state i having visible state j
 		self.state_obs_llh_matrix = np.zeros((self.n_hidden + 1, self.n_visible))
 		self.learn = False
-	#return both forward matrix and end state probability, the probability of a observation sequence to be observed.
+	#return both forward matrix and end state probability, the probability of an observation sequence to be observed.
 	def forward(self, obs_list):
 		#initializa from starting state, which is a non-emitting state
 		forward_maxtrix = np.zeros((self.n_hidden + 1, len(obs_list)+1))
@@ -30,8 +30,8 @@ class HiddenMarkov():
 		for j in range(1, self.n_hidden+1):
 			end_state_prob += forward_maxtrix[j, len(obs_list)]*self.transition_prob_matrix[j, self.n_hidden+1]
 		return (forward_maxtrix, end_state_prob) 
-	# thi calculates the probability of a sequence of observation to be observe, which starts from the final observation
-	# and trace back to the first observations. The probability must be the same with the one calculated from forward method
+	# this calculates the probability of a sequence of observation to be observe, which starts from the final observation
+	# and traces back to the first observation. The probability must be the same with the one calculated from forward function
 	def backward(self, obs_list):
 		n_obs = len(obs_list)
 		backward_matrix = np.zeros((self.n_hidden+1, n_obs+1))
@@ -75,7 +75,7 @@ class HiddenMarkov():
 					max_pos = j
 			path.append(max_pos)
 		return path
-	#this helper method translates a observation data to a vector.
+	#this helper function translates an observation data to a vector.
 	def vectorize(self, obs_list):
 		if not self.learn:
 			self.learn =True
@@ -85,7 +85,7 @@ class HiddenMarkov():
 
 		result = [int((obs_list[i]- self.min_value-np.exp(-30))/self.bin_width) for i in range(len(obs_list))]
 		return result
-	#this helper method translate the vector of visible sequence to array of observations.
+	#this helper function translate the vector of visible sequence to array of observations.
 	def reverse_trasform(self, vector):
 		return [self.min_value + self.bin_width*(i+0.5) for i in vector]
 
