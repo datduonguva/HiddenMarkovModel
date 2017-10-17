@@ -167,7 +167,7 @@ class HiddenMarkov():
 		
 
 if __name__=='__main__':
-	n_hidden = 12
+	n_hidden = 4
 	n_visible = 60
 	#initialize a Hidden Markov model
 	hm = HiddenMarkov(n_hidden, n_visible)
@@ -189,7 +189,7 @@ if __name__=='__main__':
 	pred = hm.reverse_trasform(pred)
 
 	plt.figure()
-	plt.title("HHM with "+ str(n_hidden) +" hidden states \n and " + str(n_visible)+ " visible states")
+	plt.title("HMM with "+ str(n_hidden) +" hidden states \n and " + str(n_visible)+ " visible states")
 	plt.plot(given, label = 'data')
 	plt.plot(pred, label = 'prediction')
 	plt.legend()
