@@ -22,3 +22,6 @@ prediction = hm.predict(list_of_observations)
 The following plots show how the model was used to reproduce the data that has been used to trained the model at different number of hidden states.
 
 ![Alt text](https://github.com/datduonguva/HiddenMarkovModel/blob/master/4-60.png?raw=true "4 hidden states")
+![Alt text](https://github.com/datduonguva/HiddenMarkovModel/blob/master/6-60.png?raw=true "6 hidden states")
+![Alt text](https://github.com/datduonguva/HiddenMarkovModel/blob/master/8-60.png?raw=true "8 hidden states")
+![Alt text](https://github.com/datduonguva/HiddenMarkovModel/blob/master/12-60.png?raw=true "12 hidden states")
