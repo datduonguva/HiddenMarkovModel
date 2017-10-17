@@ -1,7 +1,7 @@
-# HiddenMarkovModel
+# Hidden Markov Model
 An simple implementation of Hidden Markov Model
 
-## how to use
+## How to use
 The model can be created by calling 
 ```
 hm = HiddenMarkov(n_hidden, n_visible)
@@ -18,3 +18,7 @@ Depend on the number of hiddens and visible states, the training time may vary a
 ```
 prediction = hm.predict(list_of_observations)
 ```
+## Performance
+The following plots show how the model was used to reproduce the data that has been used to trained the model at different number of hidden states.
+
+![Alt text](https://github.com/datduonguva/HiddenMarkovModel/blob/master/4-60.png?raw=true "4 hidden states")
