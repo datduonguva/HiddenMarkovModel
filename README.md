@@ -18,6 +18,9 @@ Depend on the number of hiddens and visible states, the training time may vary a
 ```
 prediction = hm.predict(list_of_observations)
 ```
+## Theory
+Please refer to "hidden_markov_model.pdf" for explanation of how the model is constructed.
+
 ## Performance
 The following plots show how the model was used to reproduce the data that has been used to trained the model at different number of hidden states.
 
